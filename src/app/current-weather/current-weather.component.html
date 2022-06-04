@@ -1,0 +1,24 @@
+<div *ngIf="current">
+  <div fxLayout="row">
+    <div fxFlex="66%">{{current?.city}}, {{current?.country}}</div>
+    <div fxFlex>{{current?.date | date:'EEEE MMM D'}}{{getOrdinal(current.date)}}</div>
+  </div>
+  <div fxLayout="row">
+    <div fxFlex="66%"> <img style="zoom: 175%;" [src]='current?.image'> </div>
+
+    <div fxFlex class="right no-margin">
+      <p class="mat-display-3">
+        {{current?.temperature | number:'1.0-0'}}˚F
+        <!-- <span class="mat-display-3">˚F</span> -->
+      </p>
+    </div>
+  </div>
+  <div fxLayoutAlign="center" class="mat-caption">
+  {{current?.description}}
+  </div>
+ </div>
+
+ <div *ngIf="!current">
+   No Data
+ </div>
+
