@@ -20,7 +20,8 @@ interface ICurrentWeatherData {
 }
 
 export interface IWeatherService {
-  getCurrentWeather(city: string, country: string): Observable<ICurrentWeather>
+  // getCurrentWeather(search: string | number, country?: string): Observable<ICurrentWeather>
+  getCurrentWeatherByCoords(coords: any): Observable<ICurrentWeather>
 }
 
 // https://samples.openweathermap.org/data/2.5/weather?q=London,uk&appid=b1b15e88fa797225412429c1c50c122a1
@@ -39,16 +40,45 @@ export class WeatherService {
   //   )
   // }
 
-  getCurrentWeather(city: string, country: string): Observable<ICurrentWeather> {
-    const uriParams = new HttpParams()
-      .set('q', `${city},${country}`)
-      .set('appid', environment.appId);
+  // getCurrentWeather(city: string, country: string): Observable<ICurrentWeather> {
+  //   const uriParams = new HttpParams()
+  //     .set('q', `${city},${country}`)
+  //     .set('appid', environment.appId);
 
+  //   return this.httpClient
+  //     .get<ICurrentWeatherData>(
+  //       `${environment.baseUrl}api.openweathermap.org/data/2.5/weather`,
+  //       { params: uriParams }
+  //     ).pipe(map(data => this.transformToICurrentWeather(data)))
+  // }
+
+  getCurrentWeatherByCords(coords: any): Observable<ICurrentWeather> {
+    const uriParams = new HttpParams()
+      .set('lat', coords.latitude.toString())
+      .set('lon', coords.longitude.toString())
+
+    return this.getCurentWeatherHelper(uriParams);
+  }
+
+  getCurrentWeather(search: string | number, country: string): Observable<ICurrentWeather> {
+    let uriParams = new HttpParams()
+    if(typeof search === 'string') {
+      uriParams = uriParams.set('q',
+        country ? `${search},${country}` : search
+      )
+    } else {
+      uriParams = uriParams.set('zip', 'search')
+    }
+     return this.getCurentWeatherHelper(uriParams);
+  }
+
+  getCurentWeatherHelper(uriParams: HttpParams): Observable<ICurrentWeather> {
+    uriParams = uriParams.set('appid', environment.appId)
     return this.httpClient
       .get<ICurrentWeatherData>(
-        `${environment.baseUrl}api.openweathermap.org/data/2.5/weather`,
-        { params: uriParams }
-      ).pipe(map(data => this.transformToICurrentWeather(data)))
+        `${environment.baseUrl}api.openweathermap.org/data/2.5/weather`, { params: uriParams }
+      )
+      .pipe(map(data => this.transformToICurrentWeather(data)))
   }
 
   private transformToICurrentWeather(data: ICurrentWeatherData) : ICurrentWeather {
